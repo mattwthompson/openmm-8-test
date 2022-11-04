@@ -1,0 +1,6 @@
+name: beta-env
+channels:
+  - conda-forge/label/openmm_rc
+  - conda-forge
+dependencies:
+  - openmm =8.0.0beta
