@@ -11,12 +11,19 @@ for platform_index in range(openmm.Platform.getNumPlatforms()):
 
     print(f"Using platform '{platform.getName()}'")
 
-    simulation = openmm.app.Simulation(
-        topology=pdb_file.topology,
-        system=system,
-        integrator=integrator,
-        platform=platform,
-    )
+    try:
+        simulation = openmm.app.Simulation(
+            topology=pdb_file.topology,
+            system=system,
+            integrator=integrator,
+            platform=platform,
+        )
+    except openmm.OpenMMException as exception:
+        if "No compatible" in str(exception):
+            print(str(exception))
+            continue
+        else:
+            raise exception
 
     simulation.context.setPositions(pdb_file.positions)
     simulation.context.setPeriodicBoxVectors(*pdb_file.topology.getPeriodicBoxVectors())
