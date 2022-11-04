@@ -2,6 +2,9 @@ import openmm
 import openmm.app
 import openmm.unit
 
+
+minimize = True
+
 for platform_index in range(openmm.Platform.getNumPlatforms()):
 
     pdb_file = openmm.app.PDBFile("topology.pdb")
@@ -26,7 +29,12 @@ for platform_index in range(openmm.Platform.getNumPlatforms()):
             raise exception
 
     simulation.context.setPositions(pdb_file.positions)
-    simulation.context.setPeriodicBoxVectors(*pdb_file.topology.getPeriodicBoxVectors())
+    simulation.context.setPeriodicBoxVectors(
+        *pdb_file.topology.getPeriodicBoxVectors(),
+    )
+
+    for index, force in enumerate(system.getForces()):
+        force.setForceGroup(index)
 
     for force_index in range(system.getNumForces()):
         state = simulation.context.getState(
@@ -35,3 +43,17 @@ for platform_index in range(openmm.Platform.getNumPlatforms()):
         )
         print(force_index, state.getPotentialEnergy())
         del state
+
+    if minimize:
+        simulation.minimizeEnergy()
+
+        state = simulation.context.getState(
+            getPositions=True,
+        )
+
+        with open(f"minimized_{platform.getName()}.pdb", "w") as f:
+            openmm.app.PDBFile.writeFile(
+                topology=pdb_file.topology,
+                positions=state.getPositions(),
+                file=f,
+            )
