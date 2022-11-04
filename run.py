@@ -19,7 +19,7 @@ for platform_index in range(openmm.Platform.getNumPlatforms()):
     )
 
     simulation.context.setPositions(pdb_file.positions)
-    # simulation.context.setPeriodicBoxVectors(*pdb_file.topology.getPeriodicBoxVectors())
+    simulation.context.setPeriodicBoxVectors(*pdb_file.topology.getPeriodicBoxVectors())
 
     for force_index in range(system.getNumForces()):
         state = simulation.context.getState(
